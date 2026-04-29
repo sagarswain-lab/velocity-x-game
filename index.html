@@ -63,6 +63,24 @@
       background: radial-gradient(circle at center, #101030 0%, #050510 100%);
     }
 
+    @media (max-width: 700px) {
+      #gameWrapper {
+        align-items: flex-start; /* Move game to top on mobile to reduce 'header' gap */
+      }
+      #pauseBtn, #muteBtn {
+        top: 8px !important;
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 16px !important;
+      }
+      #muteBtn {
+        right: 8px !important;
+      }
+      #pauseBtn {
+        right: 50px !important;
+      }
+    }
+
     /* ===== AD COLUMNS — FIXED at screen edges, always far from game ===== */
     .adColumn {
       position: fixed;
@@ -465,6 +483,13 @@
       color:#00ffff; font-family:'Orbitron',monospace; font-size:12px;
       cursor:pointer; letter-spacing:2px;display:flex;align-items:center;gap:8px;">
         <span style="font-size:16px;">📋</span> COPY
+      </button>
+      <button onclick="goToMenu()" style="
+      padding:11px 22px; background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.25); border-radius:12px;
+      color:#ffffff; font-family:'Orbitron',monospace; font-size:12px;
+      cursor:pointer; letter-spacing:2px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:16px;">🏠</span> MENU
       </button>
     </div>
   </div>
@@ -1804,6 +1829,15 @@
     function showShareBar() { document.getElementById('shareBar').style.display = 'flex'; }
     function hideShareBar() { document.getElementById('shareBar').style.display = 'none'; }
 
+    function goToMenu() {
+      playSound('click');
+      state = 'menu';
+      showModeOverlay();
+      hideShareBar();
+      stopEngineSound();
+      startMenuSound();
+    }
+
     function showModeOverlay() {
       const lb = loadDailyLB(getDailyKey());
       const btn = document.getElementById('dailyBtn');
@@ -2560,9 +2594,9 @@
     }
 
     function drawHUD() {
-      // Top bar bg
+      // Top bar bg — reduced height from 68 to 54
       ctx.fillStyle = 'rgba(0,0,20,0.75)';
-      ctx.fillRect(0, 0, GAME_W, 68);
+      ctx.fillRect(0, 0, GAME_W, 54);
       // Bottom bar bg
       ctx.fillStyle = 'rgba(0,0,20,0.65)';
       ctx.fillRect(0, GAME_H - 110, GAME_W, 110);
@@ -2571,10 +2605,10 @@
       ctx.save();
       ctx.textAlign = 'left';
       ctx.fillStyle = 'rgba(0,255,255,0.5)'; ctx.font = '9px Orbitron';
-      ctx.fillText('SCORE', 14, 20);
+      ctx.fillText('SCORE', 14, 13);
       ctx.fillStyle = '#00ffff'; ctx.shadowColor = '#00ffff'; ctx.shadowBlur = 12;
-      ctx.font = 'bold 28px Orbitron';
-      ctx.fillText(String(Math.floor(score)).padStart(6, '0'), 14, 52);
+      ctx.font = 'bold 24px Orbitron';
+      ctx.fillText(String(Math.floor(score)).padStart(6, '0'), 14, 40);
       ctx.shadowBlur = 0;
       ctx.restore();
 
@@ -2582,16 +2616,16 @@
       ctx.save();
       ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(255,200,0,0.5)'; ctx.font = '9px Orbitron';
-      ctx.fillText('BEST', GAME_W / 2, 20);
-      ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 18px Orbitron';
-      ctx.fillText(String(Math.floor(highScore)).padStart(6, '0'), GAME_W / 2, 48);
+      ctx.fillText('BEST', GAME_W / 2, 13);
+      ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 16px Orbitron';
+      ctx.fillText(String(Math.floor(highScore)).padStart(6, '0'), GAME_W / 2, 38);
       ctx.restore();
 
       // Lives
       ctx.save();
       ctx.textAlign = 'right';
       ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '9px Orbitron';
-      ctx.fillText('LIVES', GAME_W - 14, 20);
+      ctx.fillText('LIVES', GAME_W - 14, 13);
       for (let i = 0; i < 3; i++) {
         if (i < lives) {
           ctx.globalAlpha = 1;
@@ -2604,8 +2638,8 @@
           ctx.shadowColor = 'transparent';
           ctx.shadowBlur = 0;
         }
-        ctx.font = '20px sans-serif';
-        ctx.fillText('♥', GAME_W - 14 - i * 26, 52);
+        ctx.font = '18px sans-serif';
+        ctx.fillText('♥', GAME_W - 14 - i * 22, 40);
       }
       ctx.shadowBlur = 0;
       ctx.globalAlpha = 1;
@@ -3012,8 +3046,8 @@
       deferredPrompt = null;
     }
 
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
+    // Register Service Worker (Only on http/https protocols)
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(err => console.warn('SW register failed:', err));
       });
