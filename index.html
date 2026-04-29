@@ -795,6 +795,10 @@
       <div id="playerNameBadge"
         style="font-family:'Orbitron',monospace;font-size:9px;color:rgba(0,255,255,0.5);letter-spacing:2px;min-height:14px;">
       </div>
+      <!-- Added Best Score Display into Menu -->
+      <div id="menuBestScore" style="display:none; font-family:'Orbitron',monospace; font-size:13px; color:#ffcc00; margin-bottom:12px; text-shadow: 0 0 10px #ffcc0088;">
+        🏆 BEST SCORE: <span id="menuBestScoreValue">0</span>
+      </div>
       <!-- 1. ARCADE + DAILY mode buttons -->
       <div class="modeBtnRow">
         <button class="modeBtn" onclick="startArcade()">🏁 ENDLESS</button>
@@ -1860,6 +1864,15 @@
       const lb = loadDailyLB(getDailyKey());
       const btn = document.getElementById('dailyBtn');
       if (btn) btn.textContent = lb.length > 0 ? `🔥 OVERDRIVE ★${Math.floor(lb[0].score / 1000)}K` : '🔥 OVERDRIVE';
+      
+      // Update Best Score in Menu
+      const bsEl = document.getElementById('menuBestScore');
+      const bsvEl = document.getElementById('menuBestScoreValue');
+      if (bsEl && bsvEl && highScore > 0) {
+        bsEl.style.display = 'block';
+        bsvEl.textContent = Math.floor(highScore).toLocaleString();
+      }
+
       // Show player name in menu if set
       const pnEl = document.getElementById('playerNameBadge');
       if (pnEl) pnEl.textContent = playerName ? `👤 ${playerName}` : '';
@@ -2740,13 +2753,6 @@
         ctx.fillText(f, GAME_W / 2, 400 + i * 22);
       });
 
-      // Best score
-      if (highScore > 0) {
-        ctx.fillStyle = '#ffcc00'; ctx.shadowColor = '#ffcc00'; ctx.shadowBlur = 12;
-        ctx.font = '14px Orbitron';
-        ctx.fillText('BEST SCORE: ' + Math.floor(highScore), GAME_W / 2, 485);
-        ctx.shadowBlur = 0;
-      }
     }
 
     function drawGameOver() {
