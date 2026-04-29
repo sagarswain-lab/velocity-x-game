@@ -64,9 +64,14 @@
     }
 
     @media (max-width: 700px) {
+      body {
+        background: #000 !important;
+      }
+
       #gameWrapper {
         align-items: flex-start;
-        /* Move game to top on mobile to reduce 'header' gap */
+        background: #000 !important;
+        /* Forced black background to delete blue footer */
       }
 
       #pauseBtn,
@@ -87,12 +92,12 @@
 
       #gameCanvas {
         box-shadow: none !important;
-        /* Remove the 'blue blur' footer effect on mobile */
+        border: none !important;
+        /* Remove the glow/border that creates the 'blue' effect */
       }
 
       .mBtn {
         background: rgba(0, 255, 255, 0.05) !important;
-        /* Make buttons more subtle/transparent */
         border-color: rgba(0, 255, 255, 0.2) !important;
       }
     }
@@ -2658,7 +2663,7 @@
       // Lives — Repositioned for a clean, organized mobile UI
       ctx.save();
       if (isMobile) {
-        // Move LIVES up a bit more for clarity
+        // Restore perfect mobile position
         ctx.textAlign = 'left';
         ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '9px Orbitron';
         ctx.fillText('LIVES', 14, GAME_H - 137);
