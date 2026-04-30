@@ -65,13 +65,12 @@
 
     @media (max-width: 700px) {
       body {
-        background: #000 !important;
+        background: #000011 !important; /* Match game edge color so footer is invisible */
       }
 
       #gameWrapper {
         align-items: flex-start;
-        background: #000 !important;
-        /* Forced black background to delete blue footer */
+        background: #000011 !important;
       }
 
       #pauseBtn,
@@ -1375,10 +1374,10 @@
 
     function resizeCanvas() {
       if (isMobile) {
-        // Scale by HEIGHT to fill the full phone screen — eliminates the black footer bar
-        const scale = window.innerHeight / GAME_H;
-        canvas.style.height = '100vh';
-        canvas.style.width = (GAME_W * scale) + 'px';
+        // Scale by WIDTH — keeps everything in frame including speedometer
+        const scale = window.innerWidth / GAME_W;
+        canvas.style.width = '100vw';
+        canvas.style.height = (GAME_H * scale) + 'px';
       } else {
         const scale = Math.min(window.innerWidth / GAME_W, window.innerHeight / GAME_H, 1.6);
         canvas.style.width = GAME_W * scale + 'px';
@@ -2669,7 +2668,6 @@
       // Lives — Repositioned for a clean, organized mobile UI
       ctx.save();
       if (isMobile) {
-        // Clearly visible just above fuel bar
         ctx.textAlign = 'left';
         ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '9px Orbitron';
         ctx.fillText('LIVES', 14, GAME_H - 195);
