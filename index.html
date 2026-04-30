@@ -92,7 +92,13 @@
       #gameCanvas {
         box-shadow: none !important;
         border: none !important;
-        /* Remove the glow/border that creates the 'blue' effect */
+        /* Fill entire phone screen - no black bars anywhere */
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 1;
       }
 
       .mBtn {
@@ -1373,12 +1379,8 @@
     canvas.height = GAME_H;
 
     function resizeCanvas() {
-      if (isMobile) {
-        // Scale by HEIGHT — fills full screen, no footer bar
-        const scale = window.innerHeight / GAME_H;
-        canvas.style.height = '100vh';
-        canvas.style.width = (GAME_W * scale) + 'px';
-      } else {
+      // Mobile: CSS handles it via position:fixed + 100vw/100vh
+      if (!isMobile) {
         const scale = Math.min(window.innerWidth / GAME_W, window.innerHeight / GAME_H, 1.6);
         canvas.style.width = GAME_W * scale + 'px';
         canvas.style.height = GAME_H * scale + 'px';
