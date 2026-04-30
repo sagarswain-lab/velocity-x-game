@@ -1375,9 +1375,16 @@
 
     function resizeCanvas() {
       // Ads are fixed-positioned at screen edges — canvas just fits in the viewport
-      const scale = Math.min(window.innerWidth / GAME_W, window.innerHeight / GAME_H, 1.6);
-      canvas.style.width = GAME_W * scale + 'px';
-      canvas.style.height = GAME_H * scale + 'px';
+      if (isMobile) {
+        // Stretch to fill screen on mobile to 'remove the footer'
+        canvas.style.width = '100vw';
+        canvas.style.height = '100vh';
+        canvas.style.objectFit = 'cover'; // Ensure it looks good
+      } else {
+        const scale = Math.min(window.innerWidth / GAME_W, window.innerHeight / GAME_H, 1.6);
+        canvas.style.width = GAME_W * scale + 'px';
+        canvas.style.height = GAME_H * scale + 'px';
+      }
     }
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
@@ -2601,7 +2608,7 @@
     }
 
     function drawFuelBar() {
-      const bx = 12, by = GAME_H - 100, bw = 160, bh = 14;
+      const bx = 12, by = GAME_H - 130, bw = 160, bh = 14;
       ctx.save();
       // Label
       ctx.font = '9px Orbitron'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
@@ -2663,16 +2670,16 @@
       // Lives — Repositioned for a clean, organized mobile UI
       ctx.save();
       if (isMobile) {
-        // Restore perfect mobile position
+        // Move to the 'Safe Zone' above the controls
         ctx.textAlign = 'left';
         ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '9px Orbitron';
-        ctx.fillText('LIVES', 14, GAME_H - 137);
+        ctx.fillText('LIVES', 14, GAME_H - 170);
         for (let i = 0; i < 3; i++) {
           ctx.fillStyle = (i < lives) ? '#ff1a33' : '#3a3a3a';
           ctx.shadowColor = (i < lives) ? '#ff0033' : 'transparent';
           ctx.shadowBlur = (i < lives) ? 14 : 0;
           ctx.font = '20px sans-serif';
-          ctx.fillText('♥', 14 + i * 26, GAME_H - 115);
+          ctx.fillText('♥', 14 + i * 26, GAME_H - 148);
         }
       } else {
         ctx.textAlign = 'right';
