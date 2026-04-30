@@ -1374,10 +1374,10 @@
 
     function resizeCanvas() {
       if (isMobile) {
-        // Scale by WIDTH — keeps everything in frame including speedometer
-        const scale = window.innerWidth / GAME_W;
-        canvas.style.width = '100vw';
-        canvas.style.height = (GAME_H * scale) + 'px';
+        // Scale by HEIGHT — fills full screen, no footer bar
+        const scale = window.innerHeight / GAME_H;
+        canvas.style.height = '100vh';
+        canvas.style.width = (GAME_W * scale) + 'px';
       } else {
         const scale = Math.min(window.innerWidth / GAME_W, window.innerHeight / GAME_H, 1.6);
         canvas.style.width = GAME_W * scale + 'px';
@@ -2554,7 +2554,9 @@
     }
 
     function drawSpeedometer() {
-      const cx = GAME_W - 60, cy = GAME_H - 120, r = 42;
+      // On mobile, shift left so it's not clipped by the narrower visible area
+      const cx = isMobile ? GAME_W - 110 : GAME_W - 60;
+      const cy = GAME_H - 120, r = 42;
       ctx.save();
       // Background disc
       ctx.fillStyle = 'rgba(0,0,20,0.85)';
