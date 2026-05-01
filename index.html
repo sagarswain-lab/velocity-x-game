@@ -2803,7 +2803,7 @@
         ctx.scale(rp, rp);
         ctx.fillStyle = '#00ffff'; ctx.shadowColor = '#00ffff'; ctx.shadowBlur = 20;
         ctx.font = 'bold 13px Orbitron';
-        ctx.fillText('[ SPACE ] PLAY AGAIN', 0, 0);
+        ctx.fillText('TAP ANYWHERE TO PLAY AGAIN', 0, 0);
         ctx.shadowBlur = 0;
         ctx.restore();
 
@@ -2870,6 +2870,17 @@
       ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '14px Orbitron';
       ctx.fillText('P to resume', GAME_W / 2, GAME_H / 2 + 30);
     }
+
+    canvas.addEventListener('click', e => {
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      initAudio();
+      _maybeSkipIntro();
+      if (state === 'menu') { playSound('click'); startArcade(); }
+      else if (state === 'gameover') {
+        playSound('click');
+        if (isDailyMode) startDaily(); else startArcade();
+      }
+    });
 
     // ========== UPDATE ==========
 
