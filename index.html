@@ -65,11 +65,11 @@
 
     @media (max-width: 700px) {
       body {
-        background: #000011 !important; /* Match game edge color so footer is invisible */
+        overflow: hidden !important;
+        background: #000011 !important;
       }
 
       #gameWrapper {
-        align-items: flex-start;
         background: #000011 !important;
       }
 
@@ -79,6 +79,7 @@
         width: 36px !important;
         height: 36px !important;
         font-size: 16px !important;
+        z-index: 10;
       }
 
       #muteBtn {
@@ -90,8 +91,14 @@
       }
 
       #gameCanvas {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
         box-shadow: none !important;
         border: none !important;
+        z-index: 1;
       }
 
       .mBtn {
@@ -1372,13 +1379,9 @@
     canvas.height = GAME_H;
 
     function resizeCanvas() {
-      if (isMobile) {
-        // D-pad is: 2 rows x 70px + 8px gap + 14px bottom = 162px total
-        // Canvas fills exactly the screen above the D-pad — zero gap, zero overlap
-        const dpadH = 162;
-        canvas.style.width = '100vw';
-        canvas.style.height = (window.innerHeight - dpadH) + 'px';
-      } else {
+      // Mobile sizing is handled entirely by CSS (100vw x calc(100vh-162px))
+      // Only desktop needs JS scaling
+      if (!isMobile) {
         const scale = Math.min(window.innerWidth / GAME_W, window.innerHeight / GAME_H, 1.6);
         canvas.style.width = GAME_W * scale + 'px';
         canvas.style.height = GAME_H * scale + 'px';
@@ -2555,7 +2558,7 @@
 
     function drawSpeedometer() {
       // On mobile, shift left so it's not clipped by the narrower visible area
-      const cx = isMobile ? GAME_W - 110 : GAME_W - 60;
+      const cx = isMobile ? GAME_W - 80 : GAME_W - 60;
       const cy = GAME_H - 120, r = 42;
       ctx.save();
       // Background disc
@@ -2608,7 +2611,7 @@
     }
 
     function drawFuelBar() {
-      const bx = 12, by = GAME_H - 60, bw = 160, bh = 14;
+      const bx = 12, by = GAME_H - 110, bw = 160, bh = 14;
       ctx.save();
       // Label
       ctx.font = '9px Orbitron'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
@@ -2672,13 +2675,13 @@
       if (isMobile) {
         ctx.textAlign = 'left';
         ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '9px Orbitron';
-        ctx.fillText('LIVES', 14, GAME_H - 100);
+        ctx.fillText('LIVES', 14, GAME_H - 150);
         for (let i = 0; i < 3; i++) {
           ctx.fillStyle = (i < lives) ? '#ff1a33' : '#3a3a3a';
           ctx.shadowColor = (i < lives) ? '#ff0033' : 'transparent';
           ctx.shadowBlur = (i < lives) ? 14 : 0;
           ctx.font = '20px sans-serif';
-          ctx.fillText('♥', 14 + i * 26, GAME_H - 78);
+          ctx.fillText('♥', 14 + i * 26, GAME_H - 128);
         }
       } else {
         ctx.textAlign = 'right';
