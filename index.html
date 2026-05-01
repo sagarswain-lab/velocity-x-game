@@ -487,7 +487,7 @@
 
   <!-- ===== SHARE BAR ===== -->
   <div id="shareBar" style="
-  display:none; position:fixed; bottom:85px; left:50%;
+  display:none; position:fixed; bottom:80px; left:50%;
   transform:translateX(-50%); z-index:460;
   flex-direction:column; align-items:center; gap:8px;
   font-family:'Orbitron',monospace;
@@ -1380,12 +1380,12 @@
 
     function resizeCanvas() {
       // Mobile sizing is handled entirely by CSS (100vw x calc(100vh-162px))
-      // Only desktop needs JS scaling
-      if (!isMobile) {
-        const scale = Math.min(window.innerWidth / GAME_W, window.innerHeight / GAME_H, 1.6);
-        canvas.style.width = GAME_W * scale + 'px';
-        canvas.style.height = GAME_H * scale + 'px';
-      }
+      if (isMobile) return;
+
+      // Desktop: Scale to fill HEIGHT to remove top/bottom black bars
+      const scale = window.innerHeight / GAME_H;
+      canvas.style.height = '100vh';
+      canvas.style.width = (GAME_W * scale) + 'px';
     }
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
@@ -2557,9 +2557,10 @@
     }
 
     function drawSpeedometer() {
-      // On mobile, shift left so it's not clipped by the narrower visible area
+      // On mobile, shift left and up so it sits just above the right arrow button
       const cx = isMobile ? GAME_W - 80 : GAME_W - 60;
-      const cy = GAME_H - 120, r = 42;
+      const cy = isMobile ? GAME_H - 160 : GAME_H - 120;
+      const r = 42;
       ctx.save();
       // Background disc
       ctx.fillStyle = 'rgba(0,0,20,0.85)';
@@ -2611,7 +2612,7 @@
     }
 
     function drawFuelBar() {
-      const bx = 12, by = GAME_H - 110, bw = 160, bh = 14;
+      const bx = 12, by = isMobile ? GAME_H - 175 : GAME_H - 110, bw = 160, bh = 14;
       ctx.save();
       // Label
       ctx.font = '9px Orbitron'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
@@ -2644,11 +2645,8 @@
       ctx.fillStyle = 'rgba(0,0,20,0.75)';
       ctx.fillRect(0, 0, GAME_W, 44);
 
-      // Bottom bar bg — REMOVED for cleaner mobile look
-      if (!isMobile) {
-        ctx.fillStyle = 'rgba(0,0,20,0.65)';
-        ctx.fillRect(0, GAME_H - 110, GAME_W, 110);
-      }
+      // Bottom bar bg — REMOVED to allow road to show all the way down
+      // (Instructions are still drawn at the bottom in drawHUD)
 
       // Score
       ctx.save();
@@ -2675,13 +2673,13 @@
       if (isMobile) {
         ctx.textAlign = 'left';
         ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '9px Orbitron';
-        ctx.fillText('LIVES', 14, GAME_H - 150);
+        ctx.fillText('LIVES', 14, GAME_H - 245);
         for (let i = 0; i < 3; i++) {
           ctx.fillStyle = (i < lives) ? '#ff1a33' : '#3a3a3a';
           ctx.shadowColor = (i < lives) ? '#ff0033' : 'transparent';
           ctx.shadowBlur = (i < lives) ? 14 : 0;
           ctx.font = '20px sans-serif';
-          ctx.fillText('♥', 14 + i * 26, GAME_H - 128);
+          ctx.fillText('♥', 14 + i * 26, GAME_H - 223);
         }
       } else {
         ctx.textAlign = 'right';
@@ -2776,54 +2774,89 @@
       ctx.textAlign = 'center';
       const t = Date.now() * 0.001;
 
-      // GAME OVER
-      ctx.shadowColor = '#ff2244'; ctx.shadowBlur = 50;
-      ctx.fillStyle = '#ff2244';
-      ctx.font = 'bold 54px Orbitron';
-      ctx.fillText('GAME', GAME_W / 2, 230);
-      ctx.fillText('OVER', GAME_W / 2, 290);
-      ctx.shadowBlur = 0;
-
-      // Score
-      ctx.fillStyle = '#ffffff'; ctx.font = '18px Orbitron';
-      ctx.fillText('SCORE: ' + Math.floor(score), GAME_W / 2, 350);
-
-      // New high score?
-      if (score >= highScore && score > 0) {
-        ctx.fillStyle = '#ffcc00'; ctx.shadowColor = '#ffcc00'; ctx.shadowBlur = 20;
-        const p = 0.9 + 0.1 * Math.sin(t * 4);
-        ctx.font = `bold ${17 * p}px Orbitron`;
-        ctx.fillText('★ NEW HIGH SCORE! ★', GAME_W / 2, 385);
+      if (isMobile) {
+        // --- Mobile layout: clean but includes all hints ---
+        ctx.shadowColor = '#ff2244'; ctx.shadowBlur = 40;
+        ctx.fillStyle = '#ff2244';
+        ctx.font = 'bold 42px Orbitron';
+        ctx.fillText('GAME', GAME_W / 2, 180);
+        ctx.fillText('OVER', GAME_W / 2, 230);
         ctx.shadowBlur = 0;
+
+        ctx.fillStyle = '#ffffff'; ctx.font = '16px Orbitron';
+        ctx.fillText('SCORE: ' + Math.floor(score), GAME_W / 2, 280);
+
+        if (score >= highScore && score > 0) {
+          ctx.fillStyle = '#ffcc00'; ctx.shadowColor = '#ffcc00'; ctx.shadowBlur = 20;
+          const p = 0.9 + 0.1 * Math.sin(t * 4);
+          ctx.font = `bold ${14 * p}px Orbitron`;
+          ctx.fillText('★ NEW HIGH SCORE! ★', GAME_W / 2, 310);
+          ctx.shadowBlur = 0;
+        } else {
+          ctx.fillStyle = 'rgba(180,180,180,0.6)'; ctx.font = '12px Orbitron';
+          ctx.fillText('BEST: ' + Math.floor(highScore), GAME_W / 2, 310);
+        }
+
+        const rp = 0.88 + 0.12 * Math.sin(t * 2.5);
+        ctx.save();
+        ctx.translate(GAME_W / 2, 360);
+        ctx.scale(rp, rp);
+        ctx.fillStyle = '#00ffff'; ctx.shadowColor = '#00ffff'; ctx.shadowBlur = 20;
+        ctx.font = 'bold 13px Orbitron';
+        ctx.fillText('[ SPACE ] PLAY AGAIN', 0, 0);
+        ctx.shadowBlur = 0;
+        ctx.restore();
+
+        ctx.fillStyle = 'rgba(255,200,0,0.5)'; ctx.font = '10px Orbitron';
+        ctx.fillText('[ L ] VIEW LEADERBOARD', GAME_W / 2, 400);
+        ctx.fillStyle = 'rgba(0,255,255,0.4)';
+        ctx.fillText('[ M ] MAIN MENU', GAME_W / 2, 425);
+
       } else {
-        ctx.fillStyle = 'rgba(180,180,180,0.6)'; ctx.font = '13px Orbitron';
-        ctx.fillText('BEST: ' + Math.floor(highScore), GAME_W / 2, 385);
-      }
-
-      // Overdrive mode badge
-      if (isDailyMode) {
-        ctx.fillStyle = '#ffcc00'; ctx.shadowColor = '#ffaa00'; ctx.shadowBlur = 10;
-        ctx.font = '11px Orbitron';
-        ctx.fillText('🔥 OVERDRIVE CHALLENGE', GAME_W / 2, 410);
+        // --- Desktop layout: original sizes ---
+        ctx.shadowColor = '#ff2244'; ctx.shadowBlur = 50;
+        ctx.fillStyle = '#ff2244';
+        ctx.font = 'bold 54px Orbitron';
+        ctx.fillText('GAME', GAME_W / 2, 230);
+        ctx.fillText('OVER', GAME_W / 2, 290);
         ctx.shadowBlur = 0;
+
+        ctx.fillStyle = '#ffffff'; ctx.font = '18px Orbitron';
+        ctx.fillText('SCORE: ' + Math.floor(score), GAME_W / 2, 350);
+
+        if (score >= highScore && score > 0) {
+          ctx.fillStyle = '#ffcc00'; ctx.shadowColor = '#ffcc00'; ctx.shadowBlur = 20;
+          const p = 0.9 + 0.1 * Math.sin(t * 4);
+          ctx.font = `bold ${17 * p}px Orbitron`;
+          ctx.fillText('★ NEW HIGH SCORE! ★', GAME_W / 2, 385);
+          ctx.shadowBlur = 0;
+        } else {
+          ctx.fillStyle = 'rgba(180,180,180,0.6)'; ctx.font = '13px Orbitron';
+          ctx.fillText('BEST: ' + Math.floor(highScore), GAME_W / 2, 385);
+        }
+
+        if (isDailyMode) {
+          ctx.fillStyle = '#ffcc00'; ctx.shadowColor = '#ffaa00'; ctx.shadowBlur = 10;
+          ctx.font = '11px Orbitron';
+          ctx.fillText('🔥 OVERDRIVE CHALLENGE', GAME_W / 2, 410);
+          ctx.shadowBlur = 0;
+        }
+
+        const rp = 0.88 + 0.12 * Math.sin(t * 2.5);
+        ctx.save();
+        ctx.translate(GAME_W / 2, isDailyMode ? 465 : 455);
+        ctx.scale(rp, rp);
+        ctx.fillStyle = '#00ffff'; ctx.shadowColor = '#00ffff'; ctx.shadowBlur = 20;
+        ctx.font = 'bold 15px Orbitron';
+        ctx.fillText('[ SPACE ] PLAY AGAIN', 0, 0);
+        ctx.shadowBlur = 0;
+        ctx.restore();
+
+        ctx.fillStyle = 'rgba(255,200,0,0.5)'; ctx.font = '11px Orbitron';
+        ctx.fillText('[ L ] VIEW LEADERBOARD', GAME_W / 2, isDailyMode ? 505 : 495);
+        ctx.fillStyle = 'rgba(0,255,255,0.4)';
+        ctx.fillText('[ M ] MAIN MENU', GAME_W / 2, isDailyMode ? 530 : 520);
       }
-
-      // Retry prompt
-      const rp = 0.88 + 0.12 * Math.sin(t * 2.5);
-      ctx.save();
-      ctx.translate(GAME_W / 2, isDailyMode ? 465 : 455);
-      ctx.scale(rp, rp);
-      ctx.fillStyle = '#00ffff'; ctx.shadowColor = '#00ffff'; ctx.shadowBlur = 20;
-      ctx.font = 'bold 15px Orbitron';
-      ctx.fillText('[ SPACE ] PLAY AGAIN', 0, 0);
-      ctx.shadowBlur = 0;
-      ctx.restore();
-
-      // Leaderboard & Menu hints
-      ctx.fillStyle = 'rgba(255,200,0,0.5)'; ctx.font = '11px Orbitron';
-      ctx.fillText('[ L ] VIEW LEADERBOARD', GAME_W / 2, isDailyMode ? 505 : 495);
-      ctx.fillStyle = 'rgba(0,255,255,0.4)';
-      ctx.fillText('[ M ] MAIN MENU', GAME_W / 2, isDailyMode ? 530 : 520);
     }
 
     function drawPause() {
